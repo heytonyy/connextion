@@ -11,7 +11,17 @@ import {
 } from "redux-persist/es/constants";
 import cardReducer from "./reducers";
 
-const persistConfig = { key: "root", storage, version: 2 };
+const PERSIST_VERSION = 3;
+const persistConfig = {
+  key: "root",
+  storage,
+  version: PERSIST_VERSION,
+  // Saved games from older versions have a different shape; drop them and start fresh
+  migrate: <S extends { _persist?: { version: number } }>(state: S | undefined) =>
+    Promise.resolve(
+      state?._persist?.version === PERSIST_VERSION ? state : undefined
+    ),
+};
 const persistedReducer = persistReducer(persistConfig, cardReducer);
 
 const store = configureStore({

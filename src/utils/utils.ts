@@ -59,6 +59,17 @@ export const getLocalDate = (offset = 0) => {
   return `${year}-${month}-${day}`;
 };
 
+// 83000 -> "01:23"
+export const formatTime = (ms: number) => {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = String(Math.floor((totalSeconds / 60) % 60)).padStart(2, "0");
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return hours > 0
+    ? `${hours}:${minutes}:${seconds}`
+    : `${minutes}:${seconds}`;
+};
+
 // "2024-04-01" -> "April 1, 2024"
 export const formatDate = (dateString: string) => {
   const [year, month, day] = dateString.split("-").map(Number);

@@ -40,3 +40,6 @@ next-env.d.ts
 
 # puzzles are downloaded at build time (scripts/fetch-puzzles.mjs)
 /public/puzzles/
+
+# supabase cli
+/supabase/.temp/

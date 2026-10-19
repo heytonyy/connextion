@@ -5,3 +5,12 @@ import type { RootState, AppDispatch } from "./store";
 // Use throughout app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+export type GameStatus = "playing" | "won" | "lost";
+
+export const useGameStatus = (): GameStatus =>
+  useAppSelector((state) => {
+    if (state.foundCategories.length === 4) return "won";
+    if (state.mistakesRemaining === 0) return "lost";
+    return "playing";
+  });

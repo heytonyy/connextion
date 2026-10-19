@@ -1,25 +1,22 @@
-import { useAppDispatch, useAppSelector } from "@/state/hooks";
+import { useAppDispatch, useAppSelector, useGameStatus } from "@/state/hooks";
 import { makeGuess } from "@/state/reducers";
 
 export default function Button() {
   const dispatch = useAppDispatch();
   const selectedCards = useAppSelector((state) => state.selectedCards);
-
-  const handleButtonClick = () => {
-    if (selectedCards.length == 4) {
-      dispatch(makeGuess());
-    }
-  };
+  const isPlaying = useGameStatus() === "playing";
+  const enabled = isPlaying && selectedCards.length === 4;
 
   return (
     <div className="flex items-center justify-center">
       <button
+        disabled={!enabled}
         className={`w-fit bg-indigo-500 px-6 py-2 font-medium text-white shadow-[3px_3px_0px_black] ${
-          selectedCards.length < 4
-            ? "cursor-not-allowed opacity-50"
-            : "transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:bg-indigo-600 hover:shadow-none"
+          enabled
+            ? "transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:bg-indigo-600 hover:shadow-none"
+            : "cursor-not-allowed opacity-50"
         }`}
-        onClick={handleButtonClick}
+        onClick={() => dispatch(makeGuess())}
       >
         Submit
       </button>

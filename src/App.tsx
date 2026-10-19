@@ -1,7 +1,17 @@
 import { useState } from "react";
 import GithubCornerModule from "react-github-corner";
-import { DatePicker, Grid, Timer } from "@/components/index";
+import {
+  DatePicker,
+  GameOverModal,
+  Grid,
+  Leaderboard,
+  Timer,
+  WinModal,
+} from "@/components/index";
 import usePuzzle from "@/hooks/usePuzzle";
+import useServerGame from "@/hooks/useServerGame";
+import { leaderboardEnabled } from "@/lib/leaderboard";
+import { useAppSelector, useGameStatus } from "@/state/hooks";
 import { getLocalDate } from "@/utils/utils";
 
 // react-github-corner is CommonJS; Vite's production bundle hands back the module object
@@ -20,6 +30,9 @@ export default function App() {
   // Default to tomorrow in the player's timezone
   const [date, setDate] = useState(() => getLocalDate(1));
   const status = usePuzzle(date);
+  const gameStatus = useGameStatus();
+  const startedAt = useAppSelector((state) => state.startedAt);
+  useServerGame();
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-2">
@@ -36,9 +49,12 @@ export default function App() {
           </div>
           <Grid />
           <div className="flex items-center justify-center gap-4">
-            {/* keyed by date so the clock restarts when the puzzle changes */}
-            <Timer key={date} />
+            {leaderboardEnabled && <Leaderboard date={date} />}
+            <Timer />
           </div>
+          {gameStatus === "lost" && <GameOverModal />}
+          {/* keyed by round so a closed win screen reappears after the next win */}
+          {gameStatus === "won" && <WinModal key={startedAt} />}
         </>
       ) : (
         <p className="w-[360px] py-16 text-center text-lg sm:w-[420px] md:w-[600px]">
