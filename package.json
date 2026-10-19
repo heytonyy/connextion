@@ -1,42 +1,35 @@
 {
   "name": "connextion-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "fetch-puzzles": "node scripts/fetch-puzzles.mjs",
+    "predev": "npm run fetch-puzzles",
+    "dev": "vite",
+    "prebuild": "npm run fetch-puzzles",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@t3-oss/env-nextjs": "^0.10.1",
-    "mongodb": "^6.6.1",
-    "next": "14.1.4",
-    "react": "^18",
-    "react-dom": "^18",
+    "@reduxjs/toolkit": "^2.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-github-corner": "^2.5.0",
-    "react-timer-hook": "^3.0.7"
+    "react-redux": "^9.3.0",
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
-    "@reduxjs/toolkit": "^1.9.3",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.0.1",
-    "cors": "^2.8.5",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.4",
-    "eslint-config-prettier": "^9.0.0",
-    "lucide-react": "^0.279.0",
-    "next-themes": "^0.2.1",
-    "postcss": "^8",
+    "@types/node": "^22.20.5",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^6.1.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.4.1",
-    "react-redux": "^8.0.5",
-    "redux-persist": "^6.0.0",
-    "tailwind-merge": "^1.14.0",
-    "tailwindcss": "^3.3.0",
-    "typescript": "^5",
-    "zod": "^3.22.2"
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.6.3",
+    "vite": "^8.3.4"
   }
 }

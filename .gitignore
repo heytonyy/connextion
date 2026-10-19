@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# vite
+/dist/
+
+# puzzles are downloaded at build time (scripts/fetch-puzzles.mjs)
+/public/puzzles/
