@@ -24,9 +24,33 @@ const callFunction = async <T>(name: string, body: unknown): Promise<T> => {
   return data as T;
 };
 
-// the server records when the game started, so the completion time can't be faked
+// Random id for this browser, kept in localStorage. The server allows one leaderboard entry
+// per device per day. It's not tamper-proof (incognito or clearing site data gets a new one),
+// but it stops casual repeat entries without blocking players who share a network.
+const DEVICE_ID_KEY = "connextion-device-id";
+let fallbackDeviceId: string | null = null;
+const getDeviceId = () => {
+  try {
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(DEVICE_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    // storage blocked: use an id for this page load only
+    fallbackDeviceId ??= crypto.randomUUID();
+    return fallbackDeviceId;
+  }
+};
+
+// the server records when the game started, so the completion time can't be faked.
+// alreadySubmitted is true if this device is already on that day's leaderboard.
 export const startGame = (date: string) =>
-  callFunction<{ gameId: string }>("start-game", { date });
+  callFunction<{ gameId: string; alreadySubmitted: boolean }>("start-game", {
+    date,
+    deviceId: getDeviceId(),
+  });
 
 // the server replays the guesses against that day's answers before saving
 export const submitCompletion = (

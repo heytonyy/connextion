@@ -21,6 +21,9 @@ export const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   })
 
+export const isUuid = (value: unknown): value is string =>
+  typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+
 // YYYY-MM-DD within a day or two of today (UTC), which covers every timezone's "today" and
 // "tomorrow"; NYT only publishes one day ahead anyway
 export const isPlayableDate = (date: unknown): date is string => {

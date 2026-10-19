@@ -51,10 +51,16 @@ export const cardSlice = createSlice({
     // startedAt identifies the round, so a slow response can't attach to a newer one
     setGameId: (
       state,
-      action: PayloadAction<{ startedAt: number; gameId: string }>
+      action: PayloadAction<{
+        startedAt: number;
+        gameId: string;
+        alreadySubmitted: boolean;
+      }>
     ) => {
       if (state.startedAt === action.payload.startedAt && !state.gameId) {
         state.gameId = action.payload.gameId;
+        // this device is already on the day's leaderboard; skip the initials form
+        state.submitted = action.payload.alreadySubmitted;
       }
     },
     markSubmitted: (state) => {

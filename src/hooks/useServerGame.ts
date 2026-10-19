@@ -18,8 +18,10 @@ export default function useServerGame() {
     }
     let cancelled = false;
     startGame(date)
-      .then(({ gameId }) => {
-        if (!cancelled) dispatch(setGameId({ startedAt, gameId }));
+      .then(({ gameId, alreadySubmitted }) => {
+        if (!cancelled) {
+          dispatch(setGameId({ startedAt, gameId, alreadySubmitted }));
+        }
       })
       // the game still plays without a server game; it just can't be submitted
       .catch((error) => console.error("Could not start leaderboard game:", error));

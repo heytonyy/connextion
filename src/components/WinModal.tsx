@@ -19,7 +19,16 @@ export default function WinModal() {
 
   const renderLeaderboard = () => {
     if (!leaderboardEnabled) return null;
-    if (submitted) return <LeaderboardTable date={date} />;
+    if (submitted) {
+      return (
+        <>
+          <p className="mb-2 text-sm text-gray-600">
+            You're on the leaderboard for this day.
+          </p>
+          <LeaderboardTable date={date} />
+        </>
+      );
+    }
     if (gameId) return <ScoreForm />;
     return (
       <p className="text-sm text-gray-600">
