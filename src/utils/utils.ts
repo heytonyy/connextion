@@ -49,10 +49,10 @@ export const shuffle = <T>(items: T[]): T[] => {
   return result;
 };
 
-// Tomorrow in the player's local timezone, as YYYY-MM-DD
-export const getClientDate = () => {
+// The player's local date `offset` days from today, as YYYY-MM-DD
+export const getLocalDate = (offset = 0) => {
   const date = new Date();
-  date.setDate(date.getDate() + 1); // Add 1 day to the current date
+  date.setDate(date.getDate() + offset);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -72,16 +72,23 @@ export const formatDate = (dateString: string) => {
 const puzzleUrl = (file: string) =>
   `${import.meta.env.BASE_URL}puzzles/${file}`;
 
-// Puzzles are baked into the site at build time (scripts/fetch-puzzles.mjs).
-// Prefer the player's local tomorrow; if that isn't published yet, use the newest one available.
-export const fetchPuzzle = async (): Promise<PuzzleData> => {
-  const response = await fetch(puzzleUrl(`${getClientDate()}.json`));
-  if (response.ok) return response.json();
+// Puzzles are baked into the site at build time (scripts/fetch-puzzles.mjs), and
+// index.json lists which dates made it in. Checking the list instead of relying on a 404
+// also works in `vite dev`, which answers missing files with index.html.
+let availableDates: Promise<string[]> | null = null;
+export const fetchAvailableDates = () => {
+  availableDates ??= fetch(puzzleUrl("index.json"))
+    .then((response) => response.json())
+    .then((index: { dates: string[] }) => index.dates)
+    .catch((error) => {
+      availableDates = null; // allow a retry on the next call
+      throw error;
+    });
+  return availableDates;
+};
 
-  const index: { dates: string[] } = await (
-    await fetch(puzzleUrl("index.json"))
-  ).json();
-  const latest = [...index.dates].sort().at(-1);
-  if (!latest) throw new Error("No puzzles available");
-  return (await fetch(puzzleUrl(`${latest}.json`))).json();
+export const fetchPuzzle = async (date: string): Promise<PuzzleData> => {
+  const response = await fetch(puzzleUrl(`${date}.json`));
+  if (!response.ok) throw new Error(`Puzzle ${date} failed to load`);
+  return response.json();
 };

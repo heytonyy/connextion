@@ -1,4 +1,5 @@
 import Card from "./Card";
+import DatePicker from "./DatePicker";
 import DeselectButton from "./DeselectButton";
 import FoundCategory from "./FoundCategory";
 import Grid from "./Grid";
@@ -10,6 +11,7 @@ import Timer from "./Timer";
 
 export {
   Card,
+  DatePicker,
   DeselectButton,
   FoundCategory,
   Grid,
