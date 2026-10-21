@@ -36,7 +36,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-2">
-      <div className="my-4 flex flex-wrap items-center justify-center gap-x-4 text-2xl font-extrabold text-blue-500 sm:text-4xl">
+      <div className="my-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-2xl font-extrabold text-blue-500 sm:text-4xl">
         ConNEXTions
         <DatePicker date={date} onChange={setDate} />
       </div>

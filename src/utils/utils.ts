@@ -49,15 +49,36 @@ export const shuffle = <T>(items: T[]): T[] => {
   return result;
 };
 
-// The player's local date `offset` days from today, as YYYY-MM-DD
-export const getLocalDate = (offset = 0) => {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
+// Puzzle #1; the archive starts here
+export const FIRST_PUZZLE_DATE = "2023-06-12";
+// How far ahead the calendar goes; NYT publishes up to a few weeks early
+export const MAX_DAYS_AHEAD = 30;
+
+// Dates are passed around as YYYY-MM-DD strings in the player's local timezone
+
+// Local Date -> "YYYY-MM-DD"
+export const toDateString = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
+
+// "YYYY-MM-DD" -> local Date at midnight
+export const parseDate = (dateString: string) => {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+export const addDays = (dateString: string, days: number) => {
+  const date = parseDate(dateString);
+  date.setDate(date.getDate() + days);
+  return toDateString(date);
+};
+
+// The player's local date `offset` days from today
+export const getLocalDate = (offset = 0) =>
+  addDays(toDateString(new Date()), offset);
 
 // 83000 -> "01:23"
 export const formatTime = (ms: number) => {
@@ -71,14 +92,14 @@ export const formatTime = (ms: number) => {
 };
 
 // "2024-04-01" -> "April 1, 2024"
-export const formatDate = (dateString: string) => {
-  const [year, month, day] = dateString.split("-").map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+// With weekday: "Monday, April 1, 2024"
+export const formatDate = (dateString: string, withWeekday = false) =>
+  parseDate(dateString).toLocaleDateString("en-US", {
+    weekday: withWeekday ? "long" : undefined,
     month: "long",
     day: "numeric",
     year: "numeric",
   });
-};
 
 const puzzleUrl = (file: string) =>
   `${import.meta.env.BASE_URL}puzzles/${file}`;

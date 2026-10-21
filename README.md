@@ -6,7 +6,7 @@ A clone of the New York Times game [Connections](https://www.nytimes.com/games/c
 
 ## Features
 
-- Pick a date from the dropdown (today through a week ahead). Dates NYT hasn't published yet show a "come back later" message.
+- Pick any date from a calendar, from the very first puzzle (June 12, 2023) to a month ahead. Dates NYT hasn't published yet show a "come back later" message.
 - Four mistakes ends the game. The board freezes until you reset.
 - "One away..." hints, and repeated guesses don't cost a mistake.
 - Progress and the timer are saved in your browser, so a reload doesn't lose your game.
@@ -25,7 +25,7 @@ npm run dev
 
 Then open http://localhost:3000.
 
-`npm run dev` downloads the current puzzles first, so you need an internet connection. The game works without any other setup. The leaderboard only appears once Supabase is configured (see [Leaderboard](#leaderboard-optional)).
+`npm run dev` downloads the puzzle archive first, so you need an internet connection. The first run fetches every puzzle and takes a couple of minutes; after that only new days are downloaded. The game works without any other setup. The leaderboard only appears once Supabase is configured (see [Leaderboard](#leaderboard-optional)).
 
 ### Scripts
 
@@ -34,13 +34,13 @@ Then open http://localhost:3000.
 | `npm run dev` | Downloads puzzles, then starts the dev server on port 3000 |
 | `npm run build` | Downloads puzzles, type-checks, and builds the static site to `dist/` |
 | `npm run preview` | Serves the `dist/` build locally |
-| `npm run fetch-puzzles` | Only downloads puzzles into `public/puzzles/` |
+| `npm run fetch-puzzles` | Only downloads new puzzles into `public/puzzles/` |
 
 ## How it works
 
-NYT's puzzle files (`https://www.nytimes.com/svc/connections/v2/YYYY-MM-DD.json`) can't be fetched from the browser because the server doesn't allow cross-origin requests. Instead, [`scripts/fetch-puzzles.mjs`](scripts/fetch-puzzles.mjs) downloads the puzzles for the days around today at build time. It saves them to `public/puzzles/`, along with an `index.json` listing which dates are available, and they ship as part of the static site.
+NYT's puzzle files (`https://www.nytimes.com/svc/connections/v2/YYYY-MM-DD.json`) can't be fetched from the browser because the server doesn't allow cross-origin requests. Instead, [`scripts/fetch-puzzles.mjs`](scripts/fetch-puzzles.mjs) downloads the whole archive at build time, from the first puzzle to a month ahead. It saves the puzzles to `public/puzzles/`, along with an `index.json` listing which dates are available, and they ship as part of the static site. Puzzles already on disk are skipped, except the last few days, which are re-checked.
 
-Since NYT only publishes one day ahead, the site has to be rebuilt regularly. The [deploy workflow](.github/workflows/deploy.yml) runs on every push to `main` and every 3 hours.
+NYT publishes new puzzles ahead of time, so the site has to be rebuilt regularly. The [deploy workflow](.github/workflows/deploy.yml) runs on every push to `main` and every 3 hours. It caches `public/puzzles/` between runs, so a normal build only downloads the newest days.
 
 ### Project structure
 

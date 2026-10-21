@@ -30,6 +30,14 @@ jobs:
 
       - run: npm ci
 
+      # Keep the downloaded puzzle archive between runs so only new days are fetched from NYT.
+      # Each run saves a fresh cache and restores the newest one.
+      - uses: actions/cache@v4
+        with:
+          path: public/puzzles
+          key: puzzles-${{ github.run_id }}
+          restore-keys: puzzles-
+
       # prebuild runs scripts/fetch-puzzles.mjs
       - run: npm run build
         env:

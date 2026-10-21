@@ -24,14 +24,17 @@ export const json = (body: unknown, status = 200) =>
 export const isUuid = (value: unknown): value is string =>
   typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
 
-// YYYY-MM-DD within a day or two of today (UTC), which covers every timezone's "today" and
-// "tomorrow"; NYT only publishes one day ahead anyway
+// Puzzle #1; matches FIRST_PUZZLE_DATE in src/utils/utils.ts
+export const FIRST_PUZZLE_DATE = "2023-06-12"
+
+// YYYY-MM-DD from the first puzzle through a month ahead (the calendar's range plus a day of
+// timezone slack). Whether the puzzle actually exists is checked against NYT afterwards.
 export const isPlayableDate = (date: unknown): date is string => {
   if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false
   const time = Date.parse(`${date}T00:00:00Z`)
-  if (Number.isNaN(time)) return false
+  if (Number.isNaN(time) || date < FIRST_PUZZLE_DATE) return false
   const days = (time - Date.now()) / (24 * 60 * 60 * 1000)
-  return days > -3 && days < 3
+  return days < 32
 }
 
 export const fetchAnswers = async (date: string): Promise<Answer[] | null> => {
