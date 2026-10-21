@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/state/hooks";
 import { setGrid } from "@/state/reducers";
-import {
-  fetchAvailableDates,
-  fetchPuzzle,
-  setCardsByPosition,
-  transformData,
-} from "@/utils/utils";
+import { fetchPuzzle, setCardsByPosition, transformData } from "@/utils/utils";
 
 export type PuzzleStatus = "loading" | "ready" | "unavailable" | "error";
 
@@ -21,21 +16,21 @@ export default function usePuzzle(date: string): PuzzleStatus {
     let cancelled = false;
 
     const load = async () => {
+      // Keep the saved progress if it's for the same puzzle
+      if (date === savedDate) {
+        setStatus("ready");
+        return;
+      }
       setStatus("loading");
       try {
-        const dates = await fetchAvailableDates();
+        const jsonData = await fetchPuzzle(date);
         if (cancelled) return;
-        if (!dates.includes(date)) {
+        if (!jsonData) {
           setStatus("unavailable");
           return;
         }
-        // Keep the saved progress if it's for the same puzzle
-        if (date !== savedDate) {
-          const jsonData = await fetchPuzzle(date);
-          if (cancelled) return;
-          const sortedCards = setCardsByPosition(transformData(jsonData));
-          dispatch(setGrid({ date, cards: sortedCards }));
-        }
+        const sortedCards = setCardsByPosition(transformData(jsonData));
+        dispatch(setGrid({ date, cards: sortedCards }));
         setStatus("ready");
       } catch (error) {
         console.error("Error fetching data:", error);

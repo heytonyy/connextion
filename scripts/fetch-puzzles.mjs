@@ -106,7 +106,6 @@ if (available.size === 0) {
 }
 
 const sorted = [...available].sort();
-await writeFile(new URL("index.json", OUT_DIR), JSON.stringify({ dates: sorted }));
 console.log(
   `${sorted.length} puzzles available (${sorted[0]} to ${sorted.at(-1)}), ` +
     `${unpublished} future dates not published yet` +

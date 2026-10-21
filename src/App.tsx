@@ -5,6 +5,7 @@ import {
   GameOverModal,
   Grid,
   Leaderboard,
+  LoadingBoard,
   Timer,
   WinModal,
 } from "@/components/index";
@@ -20,7 +21,6 @@ const GithubCorner =
     .default ?? GithubCornerModule;
 
 const messages = {
-  loading: "Loading...",
   unavailable:
     "This connextion isn't available yet. Please come back on a future day!",
   error: "Something went wrong loading this connextion. Please try again later.",
@@ -56,6 +56,8 @@ export default function App() {
           {/* keyed by round so a closed win screen reappears after the next win */}
           {gameStatus === "won" && <WinModal key={startedAt} />}
         </>
+      ) : status === "loading" ? (
+        <LoadingBoard />
       ) : (
         <p className="w-[360px] py-16 text-center text-lg sm:w-[420px] md:w-[600px]">
           {messages[status]}

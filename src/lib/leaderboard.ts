@@ -64,6 +64,18 @@ export const submitCompletion = (
     guesses,
   });
 
+// One day's puzzle straight from NYT, via the `puzzle` edge function (NYT blocks direct
+// browser requests). Returns null if NYT hasn't published it, or if Supabase isn't configured.
+export const fetchPuzzleFromNyt = async (date: string): Promise<unknown> => {
+  if (!leaderboardEnabled) return null;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/puzzle?date=${date}`, {
+    headers: { apikey: SUPABASE_KEY as string },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`puzzle ${date} failed to load`);
+  return res.json();
+};
+
 // fastest completions for one puzzle date
 export const fetchLeaderboard = async (
   date: string

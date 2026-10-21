@@ -38,7 +38,7 @@ Then open http://localhost:3000.
 
 ## How it works
 
-NYT's puzzle files (`https://www.nytimes.com/svc/connections/v2/YYYY-MM-DD.json`) can't be fetched from the browser because the server doesn't allow cross-origin requests. Instead, [`scripts/fetch-puzzles.mjs`](scripts/fetch-puzzles.mjs) downloads the whole archive at build time, from the first puzzle to a month ahead. It saves the puzzles to `public/puzzles/`, along with an `index.json` listing which dates are available, and they ship as part of the static site. Puzzles already on disk are skipped, except the last few days, which are re-checked.
+NYT's puzzle files (`https://www.nytimes.com/svc/connections/v2/YYYY-MM-DD.json`) can't be fetched from the browser because the server doesn't allow cross-origin requests. Instead, [`scripts/fetch-puzzles.mjs`](scripts/fetch-puzzles.mjs) downloads the whole archive at build time, from the first puzzle to a month ahead. It saves them to `public/puzzles/`, and they ship as part of the static site. When a player picks a date, the app loads that day's file. If the site doesn't have it yet, the `puzzle` edge function fetches it from NYT live (this needs Supabase; see below). Puzzles already on disk are skipped, except the last few days, which are re-checked.
 
 NYT publishes new puzzles ahead of time, so the site has to be rebuilt regularly. The [deploy workflow](.github/workflows/deploy.yml) runs on every push to `main` and every 3 hours. It caches `public/puzzles/` between runs, so a normal build only downloads the newest days.
 
@@ -81,6 +81,7 @@ Each browser gets a random device ID, and a device can have only one entry per p
    ```sh
    npx supabase functions deploy start-game --no-verify-jwt
    npx supabase functions deploy submit-score --no-verify-jwt
+   npx supabase functions deploy puzzle --no-verify-jwt
    ```
 4. Add your project URL and anon (publishable) key. Both are in your project's settings in the Supabase dashboard.
    - **Locally:** create a `.env.local` file in the project root:

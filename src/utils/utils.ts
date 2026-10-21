@@ -1,3 +1,4 @@
+import { fetchPuzzleFromNyt } from "@/lib/leaderboard";
 import { CardType } from "@/state/types";
 
 interface Category {
@@ -101,26 +102,30 @@ export const formatDate = (dateString: string, withWeekday = false) =>
     year: "numeric",
   });
 
-const puzzleUrl = (file: string) =>
-  `${import.meta.env.BASE_URL}puzzles/${file}`;
+const isPuzzle = (data: unknown): data is PuzzleData =>
+  Array.isArray((data as PuzzleData | null)?.categories);
 
-// Puzzles are baked into the site at build time (scripts/fetch-puzzles.mjs), and
-// index.json lists which dates made it in. Checking the list instead of relying on a 404
-// also works in `vite dev`, which answers missing files with index.html.
-let availableDates: Promise<string[]> | null = null;
-export const fetchAvailableDates = () => {
-  availableDates ??= fetch(puzzleUrl("index.json"))
-    .then((response) => response.json())
-    .then((index: { dates: string[] }) => index.dates)
-    .catch((error) => {
-      availableDates = null; // allow a retry on the next call
-      throw error;
-    });
-  return availableDates;
+// The site's own copy, baked in at build time (scripts/fetch-puzzles.mjs). Returns null if
+// it's missing; `vite dev` answers missing files with index.html, hence the content-type check.
+const fetchFromSite = async (date: string): Promise<PuzzleData | null> => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.BASE_URL}puzzles/${date}.json`
+    );
+    const isJson = response.headers.get("content-type")?.includes("json");
+    if (!response.ok || !isJson) return null;
+    const data = await response.json();
+    return isPuzzle(data) ? data : null;
+  } catch {
+    return null;
+  }
 };
 
-export const fetchPuzzle = async (date: string): Promise<PuzzleData> => {
-  const response = await fetch(puzzleUrl(`${date}.json`));
-  if (!response.ok) throw new Error(`Puzzle ${date} failed to load`);
-  return response.json();
+// The puzzle for `date`, or null if NYT hasn't published it. Tries the site's copy first (fast,
+// works without Supabase), then asks NYT live in case it's newer than the last build.
+export const fetchPuzzle = async (date: string): Promise<PuzzleData | null> => {
+  const fromSite = await fetchFromSite(date);
+  if (fromSite) return fromSite;
+  const fromNyt = await fetchPuzzleFromNyt(date);
+  return isPuzzle(fromNyt) ? fromNyt : null;
 };
